@@ -1,0 +1,60 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <rect width="100%" height="100%" fill="#dcdcdc" />
+
+  <polygon points="370,380 430,380 400,220" fill="green" />
+
+  <line x1="240" y1="180" x2="560" y2="270"
+    stroke="red" stroke-width="20" stroke-linecap="round" />
+
+  <defs>
+    <g id="wheel">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        from="0"
+        to="360"
+        dur="3s"
+        repeatCount="indefinite" />
+      <polygon
+        points="
+          0,-58
+          31.36,-48.57
+          52.75,-23.27
+          57.40,9.87
+          43.85,40.34
+          16.38,58.47
+          -16.30,58.49
+          -43.80,40.39
+          -57.40,9.93
+          -52.82,-23.22
+          -31.49,-48.55
+        "
+        fill="#dcdcdc"
+        stroke="#8a8a8a"
+        stroke-width="3" />
+
+      <line x1="0" y1="0" x2="0" y2="-54" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="29.19" y2="-45.43" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="49.12" y2="-21.86" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="53.45" y2="8.44" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="39.85" y2="37.55" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="13.66" y2="52.24" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="-17.69" y2="51.02" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="-44.23" y2="31.02" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="-53.85" y2="2.54" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="-43.51" y2="-31.82" stroke="#9c9c9c" stroke-width="1.6" />
+      <line x1="0" y1="0" x2="-17.00" y2="-51.25" stroke="#9c9c9c" stroke-width="1.6" />
+
+      <circle cx="0" cy="0" r="11" fill="#bfbfbf" stroke="#7f7f7f" stroke-width="2" />
+    </g>
+  </defs>
+
+  <g transform="translate(240,180)">
+    <use xlink:href="#wheel" />
+  </g>
+
+  <g transform="translate(560,270)">
+    <use xlink:href="#wheel" />
+  </g>
+</svg>
