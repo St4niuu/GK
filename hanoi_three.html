@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pl">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Wieża Hanoi - Three.js</title>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+				background-color: #222;
+			}
+		</style>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+					"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<script type="module">
+			import * as THREE from 'three'
+			import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+
+			const scene = new THREE.Scene()
+			const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200)
+			const renderer = new THREE.WebGLRenderer({ antialias: true })
+
+			renderer.setSize(window.innerWidth, window.innerHeight)
+			renderer.shadowMap.enabled = true
+			document.body.appendChild(renderer.domElement)
+
+			const controls = new OrbitControls(camera, renderer.domElement)
+			controls.enableDamping = true
+			camera.position.set(0, 10, 20)
+
+			scene.add(new THREE.AmbientLight(0xffffff, 0.5))
+			const sun = new THREE.DirectionalLight(0xffffff, 1)
+			sun.position.set(10, 20, 10)
+			sun.castShadow = true
+			scene.add(sun)
+
+			// Parametry wieży
+			const numDisks = 4
+			const pegPositionsX = [-6, 0, 6]
+			const pegsContents = [[], [], []]
+			const disks = []
+
+			const woodMaterial = new THREE.MeshStandardMaterial({
+				color: 0x8b4513,
+				roughness: 0.8
+			})
+
+			const baseGeo = new THREE.BoxGeometry(20, 0.5, 6)
+			const baseMesh = new THREE.Mesh(baseGeo, woodMaterial)
+			baseMesh.position.y = -0.25
+			baseMesh.receiveShadow = true
+			scene.add(baseMesh)
+
+			for (let i = 0; i < 3; i++) {
+				const pegGeo = new THREE.CylinderGeometry(0.2, 0.2, 8, 16)
+				const pegMesh = new THREE.Mesh(pegGeo, woodMaterial)
+				pegMesh.position.set(pegPositionsX[i], 4, 0)
+				pegMesh.castShadow = true
+				scene.add(pegMesh)
+			}
+
+			const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00]
+			for (let i = 0; i < numDisks; i++) {
+				const radius = 2.5 - i * 0.4
+				const diskGeo = new THREE.CylinderGeometry(radius, radius, 0.8, 32)
+
+				const diskMat = new THREE.MeshStandardMaterial({
+					color: colors[i % colors.length],
+					metalness: 0.1,
+					roughness: 0.5
+				})
+
+				const disk = new THREE.Mesh(diskGeo, diskMat)
+				disk.castShadow = true
+
+				const posY = i * 0.8 + 0.4
+				disk.position.set(pegPositionsX[0], posY, 0)
+
+				scene.add(disk)
+				disks.push(disk)
+				pegsContents[0].push(disk)
+			}
+
+			// Queue ruchow
+			const moves = []
+			function solveHanoi(n, source, target, aux) {
+				if (n > 0) {
+					solveHanoi(n - 1, source, aux, target)
+					moves.push({ source, target })
+					solveHanoi(n - 1, aux, target, source)
+				}
+			}
+
+			solveHanoi(numDisks, 0, 2, 1)
+
+			let currentMove = null
+			let movePhase = 0
+			const speed = 10.0
+
+			const clock = new THREE.Clock()
+
+			function animate() {
+				requestAnimationFrame(animate)
+				const delta = clock.getDelta()
+				controls.update()
+
+				if (!currentMove && moves.length > 0) {
+					const moveData = moves.shift()
+					const movingDisk = pegsContents[moveData.source].pop()
+
+					currentMove = {
+						disk: movingDisk,
+						targetPeg: moveData.target,
+						targetY: pegsContents[moveData.target].length * 0.8 + 0.4, // Wysokość stosu docelowego
+						targetX: pegPositionsX[moveData.target]
+					}
+
+					pegsContents[moveData.target].push(movingDisk)
+					movePhase = 0
+				}
+
+				if (currentMove) {
+					const { disk, targetY, targetX } = currentMove
+					const topY = 9
+
+					if (movePhase === 0) {
+						disk.position.y += speed * delta
+						if (disk.position.y >= topY) {
+							disk.position.y = topY
+							movePhase = 1
+						}
+					} else if (movePhase === 1) {
+						const dirX = Math.sign(targetX - disk.position.x)
+						disk.position.x += dirX * speed * delta
+
+						if ((dirX > 0 && disk.position.x >= targetX) || (dirX < 0 && disk.position.x <= targetX)) {
+							disk.position.x = targetX
+							movePhase = 2
+						}
+					} else if (movePhase === 2) {
+						disk.position.y -= speed * delta
+						if (disk.position.y <= targetY) {
+							disk.position.y = targetY
+							currentMove = null
+						}
+					}
+				}
+
+				renderer.render(scene, camera)
+			}
+			window.addEventListener('resize', () => {
+				camera.aspect = window.innerWidth / window.innerHeight
+				camera.updateProjectionMatrix()
+				renderer.setSize(window.innerWidth, window.innerHeight)
+			})
+
+			animate()
+		</script>
+	</body>
+</html>
